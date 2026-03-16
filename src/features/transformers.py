@@ -1,11 +1,26 @@
 import pandas as pd
 import numpy as np
+from sklearn.cluster import Birch
+from sklearn.preprocessing import MinMaxScaler
 
 # combine all 10 years and add year labels
-def combine_add_year_label_df(path,file):
+def combine_keep_cols_add_year_label_df(path,file):
     dfs = []
+    keep_cols = ['Rndrng_NPI',
+                'Rndrng_Prvdr_Ent_Cd',
+                'Rndrng_Prvdr_State_Abrvtn',
+                'Rndrng_Prvdr_Type',
+                'Rndrng_Prvdr_Mdcr_Prtcptg_Ind',
+                'Tot_HCPCS_Cds',
+                'Tot_Benes',
+                'Tot_Srvcs',
+                'Tot_Sbmtd_Chrg',
+                'Tot_Mdcr_Alowd_Amt',
+                'Tot_Mdcr_Pymt_Amt',
+                'Bene_Avg_Age',
+                'Bene_Avg_Risk_Scre']
     for year in range(2013,2024): # only have 10 years of data
-        temp = pd.read_csv(f'{path}/{file}_{year}.csv')
+        temp = pd.read_csv(f'{path}/{file}_{year}.csv')[keep_cols]
         temp['year'] = year
         dfs.append(temp)
     
@@ -257,6 +272,40 @@ def check_non_integer_columns(percentage,df): # we take percentage = 0.005
 ############################################
 # add subsetting columns once we decide on exact columns we want to use
 ############################################
+
+# get total_risk
+# may delete if not needed
+def total_risk(df):
+    df['Tot_Risk'] = df['Bene_Avg_Risk_Scre']*df['Tot_Benes']
+    return df
+
+# labeling data due to their Tot_Risk vs Tot_Mdcr_Pymt_Amt scattor plot
+# apply birch clustering, KMean does not work as good as hierarchical clustering, hierarchical can't handle large dataset, birch as an alternative
+# may delete if not needed
+# type = ['APP','PrimaryCare','MedicalSpecialtyOther','LabPathology','PharmacyNutrition']
+# run label_data(df,types,'Tot_Risk','Tot_Mdcr_Pymt_Amt')
+def label_data(df,types,col1,col2): 
+    for type in types:
+        type_mask = df['Rndrng_Prvdr_Type']==type
+        X = df[type_mask][[col1]+[col2]].copy()
+        scaler = MinMaxScaler()
+        X[f'scaled_{col1}'] = scaler.fit_transform(X[[col1]])
+        X[f'scaled_{col2}'] = scaler.fit_transform(X[[col2]])
+        m = (round((df['Tot_Mdcr_Pymt_Amt']/df['Tot_Risk']).quantile(0.99999)/10000)+1)*10000 # get large slope
+        X['Slope'] = (X[f'scaled_{col2}']/X[f'scaled_{col1}']).apply(lambda x:x if x<=m else m) # replace potential inf slopes
+
+        if type=='LabPathology':
+            birch = Birch(threshold=0.17, branching_factor=50, n_clusters=3) # threshold = 0.17 works the best for three clusters after trying different threshold
+            labels = birch.fit_predict(np.arctan(X[['Slope']]))
+            df.loc[X.index,f'{type}_Tot_Risk'] = labels
+            df[f'{type}_Tot_Risk'] = df[f'{type}_Tot_Risk'].fillna(3) # fill the rest as the fourth cat
+        else:
+            birch = Birch(threshold=0.1, branching_factor=50, n_clusters=2) # threshold = 0.17 works pretty good
+            labels = birch.fit_predict(np.arctan(X[['Slope']]))
+            df.loc[X.index,f'{type}_Tot_Risk'] = labels
+            df[f'{type}_Tot_Risk'] = df[f'{type}_Tot_Risk'].fillna(2) # fill the rest as the third cat
+    
+    return df
 
 # create log columns of 'Tot_' columns
 def log_columns(df):
