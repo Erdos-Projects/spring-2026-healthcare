@@ -258,18 +258,6 @@ def check_non_integer_columns(percentage,df): # we take percentage = 0.005
 # add subsetting columns once we decide on exact columns we want to use
 ############################################
 
-# add covid flag
-def covid_flag(df):
-    # create covid flag column
-    covid = pd.DataFrame({
-    "year": range(2013, 2024),
-    })
-    covid["Is_Covid"] = covid["year"].isin([2020, 2021]).astype(int)
-
-    # merge into df
-    df = df.merge(covid,on='year',how='left')
-    return df
-
 # create log columns of 'Tot_' columns
 def log_columns(df):
     tot_cols = [c for c in df.columns if 'Tot_' in c]
@@ -287,7 +275,7 @@ def log_columns(df):
     return df
 
 # create 1 year lag feautre
-def push_one_year(df,curr_cols = ['Log_Tot_Mdcr_Pymt_Amt','Tot_Mdcr_Pymt_Amt','year','Is_Covid']):
+def push_one_year(df,curr_cols = ['Log_Tot_Mdcr_Pymt_Amt','Tot_Mdcr_Pymt_Amt','year']):
     # define columns to keep from previous year
     pre_cols = [c for c in df.columns if c not in curr_cols]
 
@@ -308,5 +296,5 @@ def push_one_year(df,curr_cols = ['Log_Tot_Mdcr_Pymt_Amt','Tot_Mdcr_Pymt_Amt','y
     
     # change 'year' to 'current_year
     lag_df = lag_df.rename(columns={'year':'current_year'})
-    
+
     return lag_df
