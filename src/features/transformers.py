@@ -20,7 +20,7 @@ def combine_keep_cols_add_year_label_df(path,file):
                 'Bene_Avg_Age',
                 'Bene_Avg_Risk_Scre']
     for year in range(2013,2024): # only have 10 years of data
-        temp = pd.read_csv(f'{path}/{file}_{year}.csv')[keep_cols]
+        temp = pd.read_csv(f'{path}/{file}_{year}.csv',usecols=keep_cols)
         temp['year'] = year
         dfs.append(temp)
     
@@ -309,7 +309,7 @@ def label_data(df,types,col1,col2):
 
 # create log columns of 'Tot_' columns
 def log_columns(df):
-    tot_cols = [c for c in df.columns if 'Tot_' in c]
+    tot_cols = [c for c in df.columns if 'Tot_' in c but '_Tot_' not in c]
     for c in tot_cols:
         # get the smallest positive value for the column
         if min(df[c])<=0:
