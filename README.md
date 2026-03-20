@@ -12,3 +12,14 @@ Medicare is the U.S. federal health insurance program primarily serving individu
 In this project, we use Medicare provider datasets from 2013 through 2023 to predict future Medicare Part B total spending, specifically for 2024. Our modeling framework uses provider information from the previous year to predict spending in the current year, that is, a one-year lag structure. As a result, our analysis is restricted to providers that appear in two consecutive years of data. We use data from 2013 through 2022 for training and reserve 2023 for validation.
 
 Our analysis does not attempt to account for current or historical policy changes that may influence Medicare costs, nor does it address incentives affecting pharmaceutical companies. In addition, we do not model geographic factors such as population size or urban versus rural status, although we do include state-level geographic features. We also do not incorporate beneficiaries’ diagnostic information or broader demographic characteristics.
+
+## Project Details
+### Dataset EDA
+Notebooks about EDA can be found in the folder [notebook/EDA](notebook/EDA), several important EDA plots can be access in the folder [figures](figures).
+
+### Modeling Plan and KPIs
+Our modeling plan is outlined in [modeling_plan.md](modeling_plan.md), and the main evaluation metrics are described in [kpis.md](kpis.md). 
+
+**Baseline Model**: see notebooks [Baseline 1](modeling/LR_lagged.ipynb) and [Baseline 2](modeling_baseline.ipynb).
+
+**Model Experiments**
