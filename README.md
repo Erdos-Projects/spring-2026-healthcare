@@ -18,6 +18,9 @@ Our analysis does not attempt to account for current or historical policy change
 * Notebooks about EDA can be found in the folder [notebook/EDA](notebook/EDA), several important EDA plots can be access in the folder [figures](figures).
 
 ### Data Transformer and Preprocessing
+* Due to the size of our dataset, we are only be able to showcase a snapshot of our raw and processed data. 
+    - A snapshot of the raw data can be found here [raw_data](data/raw/data_snapshot_100_rows_2013.csv).
+    - A snapshot of the processed data can be found at [modeling_data](data/processed/modeling_data.csv).
 * See [transformers.py](src/features/transformers.py) and [preprocessing.py](src/features/preprocessing.py) for data transformation and preprocessing.
 * See [pipeline_demo.ipynb](notebooks/pipeline_demo.ipynb) for a demo of data pipeline.
 * A special note is that we performed a clustering and labeled our data, a plot of our clustering result can be found [here](figures/key_plots/Cluster_total_risk_vs_payment_with_legend.png).
